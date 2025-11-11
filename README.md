@@ -1,23 +1,23 @@
-# Angka-rupiah-js [![NPM Version](https://img.shields.io/npm/v/@develoka/angka-rupiah-js.svg)](https://www.npmjs.com/package/@develoka/angka-rupiah-js) [![Minified Size](https://img.shields.io/bundlephobia/min/@develoka/angka-rupiah-js.svg)](https://www.npmjs.com/package/@develoka/angka-rupiah-js) [![NPM Downloads](https://img.shields.io/npm/dt/@develoka/angka-rupiah-js)](https://www.npmjs.com/package/@develoka/angka-rupiah-js)
+# rupiah
 Mengkonversi angka ke dalam format penulisan mata uang rupiah
 
 ## Demo
 
-[Link Demo](https://code.duapx.id/gist/735ee864fba07f730c7afe6cf76daac6?default-pans=html,js,output)
+[Link Demo](https://jhedev96.github.io/rupiah/index.html)
 
 ## Instalasi dan Penggunaan
 
 ```
-npm install @develoka/angka-rupiah-js
+pnpm add github:jhedev96/rupiah
 ```
 ```js
-import toRupiah from '@develoka/angka-rupiah-js';
+import toRupiah from 'rupiah';
 ```
 
 atau
 
 ```
-<script src="https://unpkg.com/@develoka/angka-rupiah-js/index.min.js">
+<script src="https://raw.githubusercontent.com/jhedev96/rupiah/main/index.min.js">
 ```
 
 ## Usage
@@ -47,6 +47,7 @@ Mendukung berbagai format penulisan mata uang rupiah, baik formal maupun informa
 |k|`boolean`|`false`|Opsi untuk mengganti satuan unit ribuan dengan simbol "k"|
 |longUnit|`boolean`|`false`|Memanjangkan singkatan dari satuan unit kembali ke kata asalnya|
 |spaceBeforeUnit|`boolean`|`false`|Memberikan jarak satu spasi antara nominal dan unit|
+|denominate|`boolean`|`false`|Denominasi nilai rupiah dari Rp1000 ke Rp1 dan seterusnya|
 
 ### Contoh penggunaan parameter fungsi
 
@@ -76,15 +77,19 @@ console.log(toRupiah(50750000000, {useUnit: true, longUnit: true, spaceBeforeUni
 // Output: Rp 50,75 milyar
 console.log(toRupiah(5250, {useUnit: true, symbol: null, k: true}));
 // Output: 5,25k
+console.log(toRupiah(50000, {denominate: true}));
+// Output: Rp50
+console.log(toRupiah(500, {denominate: true}));
+// Output: Rp0.5
 ```
 
 ## Testing
 
-Testing menggunakan [jest](https://jestjs.io/). Lihat [file tests](https://github.com/develoka/angka-rupiah-js/blob/main/test/index.test.js).
+Testing menggunakan [jest](https://jestjs.io/). Lihat [file tests](https://github.com/jhedev96/rupiah/blob/main/test/index.test.js).
 
 ```
-npm install
-npm run test
+pnpm i
+pnpm test
 ```
 
 ## Development
@@ -92,5 +97,5 @@ npm run test
 Edit `index.js` kemudian jalankan perintah:
 
 ```
-npm run build
+pnpm build
 ```

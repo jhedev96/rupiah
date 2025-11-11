@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Angka Rupiah JS dengan Konfigurasi</title>
+    <!-- Memuat Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #059669; /* emerald-600 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container-card {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .input-field {
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.15s ease;
+        }
+        .input-field:focus {
+            border-color: var(--primary);
+            ring: 3px;
+            outline: none;
+        }
+        .setting-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+        .toggle-container {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+        .toggle-switch.checked {
+            background-color: var(--primary);
+        }
+        .toggle-switch-handle {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .toggle-switch.checked .toggle-switch-handle {
+            transform: translateX(20px);
+        }
+        
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#059669', // emerald-600
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Icon library for the chevron -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="p-4">
+
+    <div class="container-card max-w-2xl w-full max-h-screen bg-white p-8 md:p-10 rounded-xl">
+        <!-- Judul -->
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2 text-center">
+            Demo Pemformat Rupiah
+        </h1>
+        <p class="text-center text-gray-500 mb-8">
+            Uji coba berbagai konfigurasi pemformatan.
+        </p>
+
+        <!-- Area Hasil -->
+        <div class="bg-primary bg-opacity-10 p-5 rounded-lg border-l-4 border-primary mb-8">
+            <h2 class="text-lg font-semibold text-primary mb-2">
+                Hasil Format Rupiah:
+            </h2>
+            <p id="resultDisplay" class="text-3xl font-bold text-gray-800 break-words min-h-10">
+                <!-- Hasil akan ditampilkan di sini -->
+            </p>
+        </div>
+
+        <!-- Area Input Angka -->
+        <div class="mb-6">
+            <label for="numberInput" class="setting-label text-base font-bold">
+                Angka Mentah (Raw Number)
+            </label>
+            <input
+                type="text"
+                id="numberInput"
+                placeholder="1250000.75"
+                value="1250000.75"
+                class="w-full input-field text-xl"
+                oninput="updateRupiahFormat()"
+            >
+            <p class="text-xs text-gray-500 mt-1">Gunakan titik (`.`) sebagai pemisah desimal di input mentah.</p>
+        </div>
+
+        <!-- Panel Konfigurasi -->
+        <div class="border-t border-gray-200 mt-6 pt-6">
+            <button id="configToggle" class="w-full flex justify-between items-center text-lg font-bold text-gray-700 hover:text-primary transition p-2 rounded-lg bg-gray-50 hover:bg-gray-100" onclick="toggleConfig()">
+                Opsi Konfigurasi Lanjutan
+                <span id="chevron" class="transform transition-transform">
+                    <script>
+                        document.write(lucide.createIcons()['chevron-down'].toSvg({ class: 'w-5 h-5 text-gray-500' }));
+                    </script>
+                </span>
+            </button>
+
+            <div id="configPanel" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 hidden">
+                
+                <!-- Opsi 1: Symbol -->
+                <div>
+                    <label for="symbol" class="setting-label">Simbol Mata Uang</label>
+                    <select id="symbol" class="w-full input-field" onchange="updateRupiahFormat()">
+                        <option value="Rp">Rp</option>
+                        <option value="IDR">IDR</option>
+                        <option value="">Tidak Ada</option>
+                    </select>
+                </div>
+
+                <!-- Opsi 2: Floating Point -->
+                <div>
+                    <label for="floatingPoint" class="setting-label">Jumlah Desimal</label>
+                    <input type="number" id="floatingPoint" min="0" max="6" value="2" class="w-full input-field" oninput="updateRupiahFormat()">
+                </div>
+
+                <!-- Opsi 3: Separator Titik (Thousand) -->
+                <div>
+                    <label for="dot" class="setting-label">Pemisah Ribuan (`dot`)</label>
+                    <input type="text" id="dot" value="." maxlength="1" class="w-full input-field" oninput="updateRupiahFormat()">
+                </div>
+
+                <!-- Opsi 4: Separator Koma (Decimal) -->
+                <div>
+                    <label for="decimal" class="setting-label">Pemisah Desimal (`decimal`)</label>
+                    <input type="text" id="decimal" value="," maxlength="1" class="w-full input-field" oninput="updateRupiahFormat()">
+                </div>
+
+                <!-- Opsi 5: Replace Zero Decimals -->
+                <div class="p-3 bg-gray-50 rounded-lg toggle-container" onclick="toggleCheckbox('replaceZeroDecimals')">
+                    <label class="setting-label mb-0 text-sm cursor-pointer">Ganti Nol Desimal (e.g., Rp100.000,-)</label>
+                    <div id="replaceZeroDecimalsSwitch" class="toggle-switch">
+                        <input type="checkbox" id="replaceZeroDecimals" class="hidden" onchange="updateRupiahFormat()">
+                        <div class="toggle-switch-handle"></div>
+                    </div>
+                </div>
+
+                <!-- Opsi 6: Remove Zero Decimals -->
+                <div class="p-3 bg-gray-50 rounded-lg toggle-container" onclick="toggleCheckbox('removeZeroDecimals')">
+                    <label class="setting-label mb-0 text-sm cursor-pointer">Hapus Nol Desimal (e.g., Rp100.000)</label>
+                    <div id="removeZeroDecimalsSwitch" class="toggle-switch">
+                        <input type="checkbox" id="removeZeroDecimals" class="hidden" onchange="updateRupiahFormat()">
+                        <div class="toggle-switch-handle"></div>
+                    </div>
+                </div>
+                
+                <!-- Opsi 7: Formal (Pemisah ruang, dll. Diimplementasikan secara sederhana) -->
+                <div class="p-3 bg-gray-50 rounded-lg toggle-container" onclick="toggleCheckbox('formal')">
+                    <label class="setting-label mb-0 text-sm cursor-pointer">Formal (Tambahkan spasi setelah simbol)</label>
+                    <div id="formalSwitch" class="toggle-switch checked">
+                        <input type="checkbox" id="formal" class="hidden" checked onchange="updateRupiahFormat()">
+                        <div class="toggle-switch-handle"></div>
+                    </div>
+                </div>
+                
+                <!-- Opsi 8: Space Before Unit (Simulasi: Digunakan untuk memisahkan simbol) -->
+                <div class="p-3 bg-gray-50 rounded-lg toggle-container" onclick="toggleCheckbox('spaceBeforeUnit')">
+                    <label class="setting-label mb-0 text-sm cursor-pointer">Spasi Sebelum Angka (Jika `formal` non-aktif)</label>
+                    <div id="spaceBeforeUnitSwitch" class="toggle-switch">
+                        <input type="checkbox" id="spaceBeforeUnit" class="hidden" onchange="updateRupiahFormat()">
+                        <div class="toggle-switch-handle"></div>
+                    </div>
+                </div>
+
+                <!-- Catatan Tambahan -->
+                <div class="md:col-span-2 text-sm text-yellow-700 bg-yellow-100 p-3 rounded-lg mt-2">
+                    <p class="font-semibold">Catatan:</p>
+                    <p>Opsi `k`, `useUnit`, dan `longUnit` (untuk satuan singkatan seperti 'jt' atau 'ribu') memerlukan penambahan logika *scaling* angka yang kompleks. Untuk menjaga demo tetap sederhana dan terfokus pada formatting dasar, opsi tersebut tidak diimplementasikan pada fungsi demo ini.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Informasi Sumber -->
+        <div class="mt-8 pt-4 border-t text-center text-sm text-gray-500">
+            <p>Repositori: <a href="https://github.com/jhedev96/rupiah.git" target="_blank" class="text-primary hover:text-emerald-700 font-medium transition duration-150">jhedev96/rupiah</a></p>
+        </div>
+    </div>
+
+    <!-- Script Utama untuk Logika Pemformatan -->
+    <script src="./index.js"></script>
+    <script>
+        // Global variables for Firebase setup (required even if unused)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+
+        // Utility function to handle checkbox/toggle interaction
+        function toggleCheckbox(id) {
+            const checkbox = document.getElementById(id);
+            const switchElement = document.getElementById(id + 'Switch');
+            
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                switchElement.classList.add('checked');
+            } else {
+                switchElement.classList.remove('checked');
+            }
+
+            updateRupiahFormat();
+        }
+
+        /**
+         * Mengambil semua nilai konfigurasi dari elemen UI.
+         */
+        function getSettings() {
+            const settings = {
+                symbol: document.getElementById('symbol').value,
+                floatingPoint: parseInt(document.getElementById('floatingPoint').value) || 0,
+                dot: document.getElementById('dot').value || '.',
+                decimal: document.getElementById('decimal').value || ',',
+                formal: document.getElementById('formal').checked,
+                replaceZeroDecimals: document.getElementById('replaceZeroDecimals').checked,
+                removeZeroDecimals: document.getElementById('removeZeroDecimals').checked,
+                spaceBeforeUnit: document.getElementById('spaceBeforeUnit').checked,
+                // Opsi kompleks seperti k, useUnit, longUnit tidak diimplementasikan
+                k: false,
+                useUnit: false,
+                longUnit: false
+            };
+
+            // Validasi sederhana floatingPoint
+            if (settings.floatingPoint < 0) settings.floatingPoint = 0;
+            if (settings.floatingPoint > 6) settings.floatingPoint = 6;
+            document.getElementById('floatingPoint').value = settings.floatingPoint;
+            
+            return settings;
+        }
+
+
+        /**
+         * Fungsi untuk membaca input, mengambil konfigurasi, dan memperbarui tampilan hasil.
+         */
+        function updateRupiahFormat() {
+            const inputElement = document.getElementById('numberInput');
+            const resultElement = document.getElementById('resultDisplay');
+            
+            const rawValue = inputElement.value;
+            const settings = getSettings();
+            
+            // Memformat dan menampilkan hasilnya
+            const formattedResult = toRupiah(rawValue, settings);
+            
+            resultElement.textContent = formattedResult;
+        }
+
+        /**
+         * Fungsi untuk toggle panel konfigurasi.
+         */
+        function toggleConfig() {
+            const panel = document.getElementById('configPanel');
+            const chevron = document.getElementById('chevron');
+
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                chevron.innerHTML = lucide.createIcons()['chevron-up'].toSvg({ class: 'w-5 h-5 text-gray-500' });
+            } else {
+                panel.classList.add('hidden');
+                chevron.innerHTML = lucide.createIcons()['chevron-down'].toSvg({ class: 'w-5 h-5 text-gray-500' });
+            }
+        }
+
+        // Jalankan fungsi saat halaman dimuat untuk menampilkan nilai default
+        window.onload = () => {
+            // Inisialisasi status toggle switch dari checkbox HTML
+            ['replaceZeroDecimals', 'removeZeroDecimals', 'formal', 'spaceBeforeUnit'].forEach(id => {
+                const checkbox = document.getElementById(id);
+                const switchElement = document.getElementById(id + 'Switch');
+                if (checkbox.checked) {
+                    switchElement.classList.add('checked');
+                } else {
+                    switchElement.classList.remove('checked');
+                }
+            });
+            updateRupiahFormat();
+        };
+
+    </script>
+
+</body>
+</html>
+
